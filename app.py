@@ -1,5 +1,4 @@
 from flask import Flask, request, abort
-import logging
 import os
 
 from linebot.v3 import (
@@ -25,25 +24,24 @@ app = Flask(__name__)
 configuration = Configuration(access_token=os.getenv('CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-logging.basicConfig(level=logging.INFO)
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers.get('X-Line-Signature')
+    # get X-Line-Signature header value
+    signature = request.headers['X-Line-Signature']
+
+    # get request body as text
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
-    app.logger.info("Signature: " + str(signature))
 
+    # handle webhook body
     try:
         handler.handle(body, signature)
-        return 'OK'  # 確保在成功處理後返回 'OK'
-    except InvalidSignatureError as e:
-        app.logger.error("Invalid signature. Please check your channel access token/channel secret.")
-        app.logger.error(f"Error: {e}")
+    except InvalidSignatureError:
+        app.logger.info("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-    except Exception as e:
-        app.logger.error(f"Unexpected error: {e}")
-        abort(500)  # 處理其他可能的錯誤
+
+    return 'OK'
 
 
 @handler.add(MessageEvent, message=TextMessageContent)
@@ -58,5 +56,4 @@ def handle_message(event):
         )
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run()
