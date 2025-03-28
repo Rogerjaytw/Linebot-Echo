@@ -24,6 +24,10 @@ app = Flask(__name__)
 configuration = Configuration(access_token=os.getenv('CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
+# 新增根路徑處理器
+@app.route("/", methods=['GET'])
+def home():
+    return 'LINE Bot is running!'
 
 @app.route("/callback", methods=['POST'])
 def callback():
