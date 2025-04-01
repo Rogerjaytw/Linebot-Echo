@@ -1,17 +1,15 @@
 {
+    "version": 2,
     "builds": [
         {
-            "src": "./app.py",
+            "src": "app.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
         {
-            "src": "/(.*)",
+            "src": "/callback",
             "dest": "app.py"
         }
-    ],
-    "env": {
-        "PYTHONPATH": "."
-    }
+    ]
 }
